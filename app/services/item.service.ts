@@ -5,57 +5,52 @@ import { Observable, Observer } from 'rx';
 
 export class ItemService{
     constructor(private itemModel: ItemModel) {}
-    
-    get(id: number): Item {
-        let item: Item = this.itemModel.get(id);
-         if (!item) {
-            throw "Unknown item key";
-        }
-        return item;
-    }
-    
-    toggle(item: Item): string {
-        for(let urlKey in item.urls) {
-            if (!item.status) {
-                item.status = urlKey;
+        
+    toggle(availableStatus: string[], status: string): string {
+        for(let val of availableStatus) {
+            if (!status) {
+                status = val;
                 break;
             }
-            else if (item.status === urlKey) {
-                item.status = null;
+            else if (status === val) {
+                status = null;
             }
         }
-        if (!item.status) {
-            item.status = Object.keys(item.urls)[0];
+        if (!status) {
+            status = availableStatus[0];
         }
-        return item.status;
+        return status;
     }    
     
-    setStatus(id: number, status: string): Item {
-        let item: Item = this.get(id);
-
-        if (item.urls[status]) {
+    setStatus(id: string, status: string): Item {
+        let item: Item = this.itemModel.get(id);
+        
+        let availableStatus: string[] = item.urls ? Object.keys(item.urls) : item.availableStatus;
+        if (availableStatus.indexOf(status) > -1) {
             item.status = status;
         }
         else if (status === "toggle") {
-            item.status = this.toggle(item);
+            item.status = this.toggle(availableStatus, item.status);
         }
         else {
             throw "Status does not exist";
         }
         this.itemModel.save();
-        request(item.urls[item.status]);                  
+        if (item.urls) {
+            request(item.urls[item.status]);                  
+        }
  
         return item;
     }    
     
-    getStatus(id: number): Observable<any> {
+    getStatus(id: string): Observable<any> {
         return Observable.create(observer => 
             this.getStatusObserver(observer, id));
     }
     
-    getStatusObserver(observer: Observer<any>, id: number): void {
+    getStatusObserver(observer: Observer<any>, id: string): void {
         try {
-            let item: Item = this.get(id);            
+            let item: Item = this.itemModel.get(id);            
             if (item.statusUrl) {
                 this.getStatusObserverFromUrl(observer, item.statusUrl);
             }

@@ -4,5 +4,5 @@ export class Item {
   statusUrl: string;
   type: string;
   urls: any;
-  values: string[];
+  availableStatus: string[];
 }

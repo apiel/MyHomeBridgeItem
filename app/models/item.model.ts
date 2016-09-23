@@ -10,8 +10,12 @@ export class ItemModel{
         this.load();
     }
     
-    get(id: number): Item {
-        return this.items[id] || null;
+    get(id: string): Item {
+        let item: Item = this.items[id];
+         if (!item) {
+            throw "Unknown item key";
+        }        
+        return item;
     }
     
     load() {
