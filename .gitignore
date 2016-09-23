@@ -1,0 +1,8 @@
+typings
+node_modules
+jspm_packages
+bower_components
+nbproject
+dist
+*.log
+data
