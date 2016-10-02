@@ -15,6 +15,7 @@ let itemService = new ItemService(itemModel);
 let itemController = new ItemController(itemService);
 server.get('/item/:id/status', itemController.status.bind(itemController));
 server.get('/item/:id/:status', itemController.setStatus.bind(itemController));
+server.get('/items', itemController.all.bind(itemController));
 
 server.listen(3030, function() {
   console.log('%s listening at %s', server.name, server.url);

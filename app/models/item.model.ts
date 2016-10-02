@@ -1,13 +1,19 @@
-var fs = require('fs');
+var fs = require('fs'); // look for typescript solution
+var path = require('path'); // look for typescript solution
 import { Item } from './item';
 
 export class ItemModel{
-    filePath: string = "./data/items.json";
+    filePath: string = "/../data/items.json";
     
     items: Item[];
     
     constructor() {
+        this.filePath = path.dirname(require.main.filename) + this.filePath;
         this.load();
+    }
+    
+    all(): Item[] {
+        return this.items;
     }
     
     get(id: string): Item {
@@ -24,7 +30,7 @@ export class ItemModel{
             this.items = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
         }
         else {
-            throw 'Path to memspace folder does not exist: ' + this.filePath;
+            throw 'Path to data model folder does not exist: ' + this.filePath;
         }        
     }
     

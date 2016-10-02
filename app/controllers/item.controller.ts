@@ -9,8 +9,7 @@ export default class ItemController {
         let id = req.params['id'];
         
         this.itemService.getStatus(id)
-            .map(data => res.json(200, {status: data}))
-            .subscribe();
+            .subscribe(data => res.json(200, data));
         
         return next();
     }     
@@ -27,4 +26,19 @@ export default class ItemController {
         }
         return next();
     } 
+    
+    all(req: restify.Request, res: restify.Response, next: restify.Next) {
+        try {
+            let itemsStatus = [];
+            this.itemService.all().subscribe(
+                itemStatus => itemsStatus.push(itemStatus),
+                null,
+                () => res.json(200, itemsStatus)
+            );            
+        }
+        catch(e) {
+            res.json(200, {error: e});
+        }
+        return next();
+    }     
 }

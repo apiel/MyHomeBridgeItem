@@ -68,6 +68,30 @@ export class ItemService{
         }   
     }
     
+    all(): Observable<any> {
+        return Observable.create(observer => 
+            this.allObserver(observer));        
+    }
+    
+    allObserver(observer: Observer<any>) {
+        let items: Item[] = this.itemModel.all();
+        let itemsKeys = Object.keys(items);
+        let waitingForStatus = itemsKeys.length;
+        //observer.
+        //let itemsStatus = [];
+        //console.log(itemsKeys.length);
+        for(let key of itemsKeys) {
+            //console.log(key);
+            this.getStatus(key).subscribe(function(status) {
+                observer.onNext(status);
+                waitingForStatus--;
+                if (waitingForStatus < 1) {
+                    observer.onCompleted();
+                }
+            });
+        }
+    }
+    
     getStatus(id: string): Observable<any> {
         return Observable.create(observer => 
             this.getStatusObserver(observer, id));
@@ -77,29 +101,30 @@ export class ItemService{
         try {
             let item: Item = this.itemModel.get(id); 
             if (item.statusUrl) {
-                this.getStatusObserverFromUrl(observer, item.statusUrl);
+                this.getStatusObserverFromUrl(observer, id, item.statusUrl);
             }
             else {
-                observer.onNext(item.type === "number" ? Number(item.status) : item.status);
+                let status = item.type === "number" ? Number(item.status) : item.status;
+                observer.onNext({id: id, status: status});
                 observer.onCompleted();  
             }
         }
         catch(error) {
-            observer.onError(error);
+            observer.onError({id: id, error: error});
             observer.onCompleted();  
         }                  
     }
     
-    getStatusObserverFromUrl(observer: Observer<any>, url: string): void {
+    getStatusObserverFromUrl(observer: Observer<any>, id: string, url: string): void {
         request(url, 
             function (error, response, body) {
                 var data = JSON.parse(body); 
                 if (data && data.status) {
-                    observer.onNext(data.status);
+                    observer.onNext({id: id, status: data.status});
                     observer.onCompleted();  
                 }
                 else {            
-                    observer.onError(body);
+                    observer.onError({id: id, error: body});
                     observer.onCompleted();  
                 }
             });        
