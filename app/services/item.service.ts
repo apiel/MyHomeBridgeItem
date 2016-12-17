@@ -1,4 +1,5 @@
 import * as request from 'request';
+import { exec } from 'child_process';
 import { ItemModel } from './../models/item.model';
 import { Item } from './../models/item';
 import { Observable, Observer } from 'rx';
@@ -35,8 +36,14 @@ export class ItemService{
         if (item.url) {
             this.requestUrl(item.url.replace(':value', item.status));            
         }
-        else if (item.urls) {
-            this.requestUrl(item.urls[item.status]);
+        else if (item.availableStatus) {
+            let itemStatus = item.availableStatus[item.status];
+            if (itemStatus.type === 'url') {
+                this.requestUrl(itemStatus.value);
+            }
+            else if (itemStatus.type === 'exec') {
+                exec(itemStatus.value);
+            }
         }         
         return item;
     }    
@@ -56,7 +63,7 @@ export class ItemService{
     }
     
     setStatusOfTypeString(item: Item, status: string): void {
-        let availableStatus: string[] = item.urls ? Object.keys(item.urls) : item.availableStatus;
+        let availableStatus: string[] = Object.keys(item.availableStatus);
         if (availableStatus.indexOf(status) > -1) {
             item.status = status;
         }
