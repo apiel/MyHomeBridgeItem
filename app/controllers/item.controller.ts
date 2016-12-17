@@ -6,6 +6,7 @@ export default class ItemController {
     constructor(private itemService: ItemService) {}
         
     status(req: restify.Request, res: restify.Response, next: restify.Next) {
+        console.log('Controller item status');
         let id = req.params['id'];
         
         this.itemService.getStatus(id)
@@ -15,6 +16,7 @@ export default class ItemController {
     }     
     
     setStatus(req: restify.Request, res: restify.Response, next: restify.Next) {
+        console.log('Controller item setStatus');
         let id = req.params['id'];
         let status = req.params['status'];
         try {
@@ -28,6 +30,7 @@ export default class ItemController {
     } 
     
     all(req: restify.Request, res: restify.Response, next: restify.Next) {
+        console.log('Controller item all');
         try {
             let itemsStatus = [];
             this.itemService.all().subscribe(
